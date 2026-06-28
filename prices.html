@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Optimization -->
+  <title>Live Crypto Prices & L1/L2 Gas Estimator</title>
+  <meta name="description" content="Track live crypto prices (BTC, ETH, SOL, ARB) with real-time SVG trend sparklines. Estimate and compare transaction fees on Ethereum L1 vs Arbitrum L2.">
+  <meta name="keywords" content="CoinGecko API, Crypto prices, Bitcoin, Ethereum, Gas Fee Calculator, Gwei, L1, L2, Arbitrum">
+  <meta name="author" content="Shreya">
+  
+  <!-- Styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo" id="site-logo">
+        <span class="logo-icon">Λ</span> L2 Frontier
+      </a>
+      <button class="mobile-nav-toggle" id="menu-toggle" aria-label="Toggle Navigation">☰</button>
+      <nav id="nav-menu">
+        <ul>
+          <li><a href="index.html" id="nav-home">Home</a></li>
+          <li><a href="concepts.html" id="nav-concepts">Concepts</a></li>
+          <li><a href="prices.html" class="active" id="nav-prices">Live Prices</a></li>
+          <li><a href="simulator.html" id="nav-simulator">Block Simulator</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      
+      <!-- Page Header -->
+      <section style="text-align: center; margin-bottom: 3rem;">
+        <h1 class="section-title">Crypto Market Terminal</h1>
+        <p class="section-subtitle">
+          Real-time prices fetched directly from the CoinGecko Public API. Below, use the Gas Estimator to compare L1 vs L2 transaction costs.
+        </p>
+      </section>
+      <!-- Main Prices Section -->
+      <section class="price-dashboard">
+        
+        <!-- API Info or Rate Limit Alerts -->
+        <div id="rate-limit-alert" class="alert-banner" style="display: none;">
+          <span>⚠️</span>
+          <div id="alert-text">CoinGecko API rate limit reached (HTTP 429). Displaying cached pricing data.</div>
+          <button onclick="dismissAlert()">Dismiss</button>
+        </div>
+        <div class="price-controls">
+          <!-- Live search -->
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="coin-search" placeholder="Search tracked tokens...">
+          </div>
+          
+          <button class="btn btn-secondary" id="btn-refresh-prices" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <span id="refresh-icon" style="transition: transform 0.5s;">🔄</span> Refresh Prices
+          </button>
+        </div>
+        <!-- Price Grid -->
+        <div class="price-grid" id="price-grid-container">
+          <!-- Card templates will be dynamically populated -->
+        </div>
+        <!-- Add Custom Token Form -->
+        <div class="glass-card add-coin-card">
+          <h3 style="margin-bottom: 0.5rem;">Track Custom Token</h3>
+          <p style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+            Add any token by entering its CoinGecko API ID (e.g. <code>optimism</code>, <code>polygon</code>, <code>chainlink</code>, <code>uniswap</code>).
+          </p>
+          <div class="add-coin-form">
+            <div class="form-group">
+              <label for="custom-coin-id">CoinGecko API ID</label>
+              <input type="text" id="custom-coin-id" placeholder="e.g. optimism" required>
+            </div>
+            <button class="btn btn-primary" id="btn-add-custom-coin">Add Token</button>
+          </div>
+        </div>
+      </section>
+      <!-- Gas fee L1 vs L2 comparison (EXCLUSIVE DIFFERENTIATOR) -->
+      <section class="gas-section" id="gas-estimator-section">
+        
+        <!-- Interactive Form -->
+        <div class="glass-card calculator-card">
+          <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 0.5rem;">L1 vs L2 Gas Fee Calculator</h3>
+          
+          <div class="form-group">
+            <label for="tx-type-select">Transaction Type</label>
+            <select id="tx-type-select">
+              <option value="transfer" data-gas-l1="21000" data-gas-l2="800">Simple Transfer (ETH)</option>
+              <option value="swap" data-gas-l1="150000" data-gas-l2="4500" selected>Token Swap (Uniswap)</option>
+              <option value="mint" data-gas-l1="280000" data-gas-l2="9000">NFT Mint (ERC-721)</option>
+              <option value="deploy" data-gas-l1="1500000" data-gas-l2="48000">Contract Deployment</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="input-l1-gwei">Ethereum L1 Gas Price (Gwei)</label>
+            <input type="number" id="input-l1-gwei" value="35" min="1">
+          </div>
+          <div class="form-group">
+            <label for="input-l2-gwei">Arbitrum L2 Gas Price (Gwei)</label>
+            <input type="number" id="input-l2-gwei" value="0.1" step="0.01" min="0.01">
+          </div>
+        </div>
+        <!-- Results displays -->
+        <div class="gas-results-container">
+          <div class="glass-card" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 style="margin-bottom: 1.5rem;">Estimated Transaction Cost</h3>
+              <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Based on active coin prices and selected transaction complexity parameters.
+              </p>
+              <!-- Comparison bar visual -->
+              <div class="comparison-bar-chart">
+                <!-- Ethereum L1 Bar -->
+                <div class="bar-row">
+                  <div class="bar-header">
+                    <span>Ethereum Mainnet (L1)</span>
+                    <span id="price-l1-usd" style="color: var(--status-danger);">$0.00</span>
+                  </div>
+                  <div class="bar-track">
+                    <div class="bar-fill l1" id="bar-l1" style="width: 100%;">L1</div>
+                  </div>
+                </div>
+                <!-- Arbitrum L2 Bar -->
+                <div class="bar-row">
+                  <div class="bar-header">
+                    <span>Arbitrum Rollup (L2)</span>
+                    <span id="price-l2-usd" style="color: var(--accent-cyan);">$0.00</span>
+                  </div>
+                  <div class="bar-track">
+                    <div class="bar-fill l2" id="bar-l2" style="width: 2%;">L2</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Savings banner -->
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); padding: 1.25rem; border-radius: 8px; margin-top: 1.5rem; text-align: center;">
+              <span style="font-size: 0.85rem; text-transform: uppercase; color: var(--status-success); font-weight: 700; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Rollup Savings Factor</span>
+              <h2 style="font-size: 2.2rem; color: var(--status-success); text-shadow: var(--glow-success);" id="savings-multiplier">100.0x Cheaper</h2>
+              <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.5rem;" id="savings-delta-usd">You save $0.00 in execution costs!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom: 1.5rem; display: inline-flex;">
+          <span class="logo-icon">Λ</span> L2 Frontier
+        </a>
+        <p style="font-size: 0.9rem; margin-top: 1rem;">
+          An advanced Web3 educational platform designed to illustrate Ethereum scaling, blockchain immutability, and real-time market data.
+        </p>
+      </div>
+      <div class="footer-links">
+        <h5>Explore Pages</h5>
+        <ul>
+          <li><a href="index.html">Home / Landing</a></li>
+          <li><a href="concepts.html">Web3 Concepts</a></li>
+          <li><a href="prices.html">Live Crypto Prices</a></li>
+          <li><a href="simulator.html">Block Simulator</a></li>
+        </ul>
+      </div>
+      <div class="footer-author">
+        <h5>Development Credits</h5>
+        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Developer: <strong>Shreya</strong></p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Batch: <strong>Web3 Developer Pioneer</strong></p>
+        <div class="footer-socials">
+          <a href="https://github.com/shreya-web3" target="_blank" id="github-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan);">
+            <span>🐙</span> GitHub Repository
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Web3 Scaling Hub. Designed with visual excellence.</p>
+      <p>Built for Web3 Technical Core Curriculum</p>
+    </div>
+  </footer>
+  <!-- Script for Prices Fetching and Calculator -->
+  <script>
+    // --- Mobile Nav Menu ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    menuToggle.addEventListener('click', () => {
+      navMenu.style.display = navMenu.style.display === 'block' ? 'none' : 'block';
+    });
+    // --- Core Pricing & Sparkline Logic ---
+    const alertBanner = document.getElementById('rate-limit-alert');
+    const alertText = document.getElementById('alert-text');
+    const priceGridContainer = document.getElementById('price-grid-container');
+    const searchInput = document.getElementById('coin-search');
+    const refreshBtn = document.getElementById('btn-refresh-prices');
+    const refreshIcon = document.getElementById('refresh-icon');
+    
+    // Calculator inputs
+    const txTypeSelect = document.getElementById('tx-type-select');
+    const inputL1Gwei = document.getElementById('input-l1-gwei');
+    const inputL2Gwei = document.getElementById('input-l2-gwei');
+    
+    // Calculator outputs
+    const priceL1Usd = document.getElementById('price-l1-usd');
+    const priceL2Usd = document.getElementById('price-l2-usd');
+    const barL1 = document.getElementById('bar-l1');
+    const barL2 = document.getElementById('bar-l2');
+    const savingsMultiplier = document.getElementById('savings-multiplier');
+    const savingsDeltaUsd = document.getElementById('savings-delta-usd');
+    // List of coin ids we track (saved to/loaded from localStorage)
+    let trackedCoinIds = ['bitcoin', 'ethereum', 'solana', 'arbitrum'];
+    let localCache = {};
+    let ethPriceUsd = 3450.00; // global fallback
+    // Pre-seeded fallback mock data if CoinGecko is blocked or rate limits us
+    const mockSeedData = {
+      'bitcoin': { name: 'Bitcoin', symbol: 'btc', current_price: 64230.12, price_change_percentage_24h: 2.35, sparkline_in_7d: { price: [63800, 63950, 63700, 64100, 64300, 64200, 64230.12] } },
+      'ethereum': { name: 'Ethereum', symbol: 'eth', current_price: 3452.45, price_change_percentage_24h: -1.24, sparkline_in_7d: { price: [3520, 3510, 3490, 3480, 3460, 3445, 3452.45] } },
+      'solana': { name: 'Solana', symbol: 'sol', current_price: 142.80, price_change_percentage_24h: 5.72, sparkline_in_7d: { price: [135, 137, 136, 138, 140, 141, 142.80] } },
+      'arbitrum': { name: 'Arbitrum', symbol: 'arb', current_price: 0.98, price_change_percentage_24h: -0.45, sparkline_in_7d: { price: [1.02, 1.01, 0.99, 1.00, 0.98, 0.97, 0.98] } }
+    };
+    function loadTrackedCoins() {
+      const stored = localStorage.getItem('tracked_coins');
+      if (stored) {
+        trackedCoinIds = JSON.parse(stored);
+      }
+      const storedCache = localStorage.getItem('price_cache');
+      if (storedCache) {
+        localCache = JSON.parse(storedCache);
+      }
+    }
+    function saveTrackedCoins() {
+      localStorage.setItem('tracked_coins', JSON.stringify(trackedCoinIds));
+    }
+    function dismissAlert() {
+      alertBanner.style.display = 'none';
+    }
+    // Dynamic SVG Sparkline Generator
+    function generateSparklineSVG(pricesArray, isUp) {
+      if (!pricesArray || pricesArray.length < 2) return '';
+      
+      const width = 240;
+      const height = 50;
+      const padding = 2;
+      
+      const min = Math.min(...pricesArray);
+      const max = Math.max(...pricesArray);
+      const range = max - min === 0 ? 1 : max - min;
+      
+      const points = pricesArray.map((val, idx) => {
+        const x = (idx / (pricesArray.length - 1)) * (width - padding * 2) + padding;
+        const y = height - ((val - min) / range) * (height - padding * 2) - padding;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      
+      const pathData = `M ${points.join(' L ')}`;
+      const strokeClass = isUp ? 'up' : 'down';
+      
+      return `
+        <svg class="sparkline-svg" viewBox="0 0 ${width} ${height}">
+          <path class="sparkline-path ${strokeClass}" d="${pathData}"></path>
+        </svg>
+      `;
+    }
+    // Render cards to UI
+    function renderCoins(coinsData) {
+      priceGridContainer.innerHTML = '';
+      
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      Object.keys(coinsData).forEach(id => {
+        const coin = coinsData[id];
+        if (!coin) return;
+        // Apply search filter
+        if (searchTerm && 
+            !coin.name.toLowerCase().includes(searchTerm) && 
+            !coin.symbol.toLowerCase().includes(searchTerm)) {
+          return;
+        }
+        const isUp = coin.price_change_percentage_24h >= 0;
+        const arrow = isUp ? '▲' : '▼';
+        const changeClass = isUp ? 'up' : 'down';
+        const formattedPrice = coin.current_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        const formattedChange = Math.abs(coin.price_change_percentage_24h).toFixed(2);
+        
+        // Generate SVG Sparkline path
+        const sparklineHTML = generateSparklineSVG(coin.sparkline_in_7d?.price, isUp);
+        const card = document.createElement('div');
+        card.className = 'glass-card coin-card';
+        card.id = `coin-card-${id}`;
+        card.innerHTML = `
+          <!-- Delete button if not default -->
+          ${!['bitcoin', 'ethereum', 'solana', 'arbitrum'].includes(id) ? 
+            `<button onclick="removeCoin('${id}')" style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 1rem;">✕</button>` : ''
+          }
+          
+          <div class="coin-header">
+            <div class="coin-icon">${coin.symbol.substring(0, 3).toUpperCase()}</div>
+            <div class="coin-title">
+              <span class="coin-name">${coin.name}</span>
+              <span class="coin-symbol">${coin.symbol}</span>
+            </div>
+          </div>
+          <div class="coin-price">${formattedPrice}</div>
+          <div class="coin-change ${changeClass}">
+            <span>${arrow}</span> ${formattedChange}% (24h)
+          </div>
+          
+          <div class="sparkline-container">
+            ${sparklineHTML}
+          </div>
+        `;
+        priceGridContainer.appendChild(card);
+      });
+      
+      // Update global ETH price reference for calculator
+      if (coinsData['ethereum']) {
+        ethPriceUsd = coinsData['ethereum'].current_price;
+      }
+      
+      // Re-trigger calculator update
+      updateGasCalculator();
+    }
+    // Fetch prices from CoinGecko
+    async function fetchPrices() {
+      refreshIcon.style.transform = 'rotate(360deg)';
+      refreshBtn.disabled = true;
+      const idsQuery = trackedCoinIds.join(',');
+      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${idsQuery}&price_change_percentage=24h&sparkline=true`;
+      
+      try {
+        const response = await fetch(url);
+        
+        if (response.status === 429) {
+          throw new Error('Rate limit reached (429)');
+        }
+        if (!response.ok) {
+          throw new Error(`API returned error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Convert array to lookup map
+        const newCache = {};
+        data.forEach(coin => {
+          newCache[coin.id] = {
+            name: coin.name,
+            symbol: coin.symbol,
+            current_price: coin.current_price,
+            price_change_percentage_24h: coin.price_change_percentage_24h,
+            sparkline_in_7d: coin.sparkline_in_7d
+          };
+        });
+        // Store in cache
+        localCache = newCache;
+        localStorage.setItem('price_cache', JSON.stringify(localCache));
+        localStorage.setItem('price_cache_time', Date.now().toString());
+        alertBanner.style.display = 'none';
+        renderCoins(localCache);
+        
+      } catch (err) {
+        console.warn('API error encountered. Falling back to mocks or cache.', err);
+        
+        // Determine fallback data
+        let displayData = {};
+        let isUsingMocks = true;
+        if (Object.keys(localCache).length > 0) {
+          // Use previous cache if available
+          displayData = localCache;
+          isUsingMocks = false;
+          alertText.innerText = "Network error. Displaying cached prices from last successful fetch.";
+        } else {
+          // Seed initial values from Mock data
+          displayData = mockSeedData;
+          trackedCoinIds.forEach(id => {
+            if (!displayData[id]) {
+              displayData[id] = {
+                name: id.toUpperCase(),
+                symbol: id.substring(0,3),
+                current_price: 1.00,
+                price_change_percentage_24h: 0.00,
+                sparkline_in_7d: { price: [1, 1, 1, 1, 1, 1, 1] }
+              };
+            }
+          });
+          alertText.innerText = "CoinGecko API offline/rate-limited. Displaying seed demonstration prices.";
+        }
+        alertBanner.style.display = 'flex';
+        renderCoins(displayData);
+      } finally {
+        setTimeout(() => {
+          refreshIcon.style.transform = 'rotate(0deg)';
+          refreshBtn.disabled = false;
+        }, 600);
+      }
+    }
+    // --- Track custom coin ---
+    const btnAddCustom = document.getElementById('btn-add-custom-coin');
+    const customCoinIdInput = document.getElementById('custom-coin-id');
+    btnAddCustom.addEventListener('click', async () => {
+      const id = customCoinIdInput.value.trim().toLowerCase();
+      if (!id) return;
+      
+      if (trackedCoinIds.includes(id)) {
+        alert("Coin is already being tracked!");
+        return;
+      }
+      // Pre-add to list and trigger fetch
+      trackedCoinIds.push(id);
+      saveTrackedCoins();
+      
+      customCoinIdInput.value = '';
+      await fetchPrices();
+    });
+    window.removeCoin = function(id) {
+      trackedCoinIds = trackedCoinIds.filter(coinId => coinId !== id);
+      saveTrackedCoins();
+      
+      // Delete from cache
+      if (localCache[id]) delete localCache[id];
+      localStorage.setItem('price_cache', JSON.stringify(localCache));
+      
+      renderCoins(Object.keys(localCache).length > 0 ? localCache : mockSeedData);
+    };
+    // --- Search Filter Event ---
+    searchInput.addEventListener('input', () => {
+      renderCoins(Object.keys(localCache).length > 0 ? localCache : mockSeedData);
+    });
+    // --- Gas Calculator Logic ---
+    function updateGasCalculator() {
+      // Get gas limits from selected option
+      const selectedOpt = txTypeSelect.options[txTypeSelect.selectedIndex];
+      const gasLimitL1 = parseInt(selectedOpt.dataset.gasL1);
+      const gasLimitL2 = parseInt(selectedOpt.dataset.gasL2);
+      
+      const gweiL1 = parseFloat(inputL1Gwei.value) || 0;
+      const gweiL2 = parseFloat(inputL2Gwei.value) || 0;
+      // Formula: Gas Cost (ETH) = Gas Limit * Gas Price (Gwei) / 10^9
+      const costEthL1 = (gasLimitL1 * gweiL1) / 1000000000;
+      const costEthL2 = (gasLimitL2 * gweiL2) / 1000000000;
+      // Convert to USD
+      const costUsdL1 = costEthL1 * ethPriceUsd;
+      const costUsdL2 = costEthL2 * ethPriceUsd;
+      // Update text values
+      priceL1Usd.innerText = costUsdL1.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      priceL2Usd.innerText = costUsdL2.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 4 });
+      // Calculate ratio / savings factor
+      const ratio = costUsdL2 > 0 ? (costUsdL1 / costUsdL2) : 1;
+      const delta = costUsdL1 - costUsdL2;
+      savingsMultiplier.innerText = `${ratio.toFixed(1)}x Cheaper`;
+      savingsDeltaUsd.innerText = `You save $${delta.toFixed(2)} in execution costs!`;
+      // Update bar visuals
+      // L1 represents 100% width reference, L2 shows relative proportion
+      const relativeWidth = Math.max(2, Math.min(100, (costUsdL2 / costUsdL1) * 100));
+      barL1.style.width = '100%';
+      barL2.style.width = `${relativeWidth}%`;
+    }
+    // Set up event listeners for calculator
+    txTypeSelect.addEventListener('change', updateGasCalculator);
+    inputL1Gwei.addEventListener('input', updateGasCalculator);
+    inputL2Gwei.addEventListener('input', updateGasCalculator);
+    refreshBtn.addEventListener('click', fetchPrices);
+    // Initialize Page
+    loadTrackedCoins();
+    fetchPrices();
+  </script>
+</body>
+</html>

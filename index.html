@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Optimization -->
+  <title>L2 Scaling Frontier | Demystifying Ethereum Layer 2 & Rollups</title>
+  <meta name="description" content="Explore the mechanics of Ethereum Layer 2 scalability and Arbitrum. Interact with the live Rollup Simulator to see how transactions are compressed and secured.">
+  <meta name="keywords" content="Web3, Layer 2, Arbitrum, Ethereum, Rollup, Blockchain, Scaling, Crypto">
+  <meta name="author" content="Shreya">
+  
+  <!-- Styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo" id="site-logo">
+        <span class="logo-icon">Λ</span> L2 Frontier
+      </a>
+      <button class="mobile-nav-toggle" id="menu-toggle" aria-label="Toggle Navigation">☰</button>
+      <nav id="nav-menu">
+        <ul>
+          <li><a href="index.html" class="active" id="nav-home">Home</a></li>
+          <li><a href="concepts.html" id="nav-concepts">Concepts</a></li>
+          <li><a href="prices.html" id="nav-prices">Live Prices</a></li>
+          <li><a href="simulator.html" id="nav-simulator">Block Simulator</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      
+      <!-- Hero Section -->
+      <section class="hero" id="hero-section">
+        <div class="hero-content">
+          <h1>The Layer 2 Evolution:<br>Scaling Ethereum with Rollups</h1>
+          <p>
+            Ethereum is the world's decentralized computer, but high usage leads to congestion and expensive gas fees. Layer 2 networks like Arbitrum process transactions off-chain, rollup the results into a single package, and post it to Ethereum—retaining L1's security at a fraction of the cost.
+          </p>
+          <div class="hero-cta">
+            <a href="#rollup-playground" class="btn btn-primary" id="cta-simulate">Try Rollup Simulator</a>
+            <a href="concepts.html" class="btn btn-secondary" id="cta-learn">Explore Web3 Concepts</a>
+          </div>
+        </div>
+        
+        <div class="hero-visual">
+          <!-- Canvas for node network animation -->
+          <canvas id="node-canvas" class="hero-canvas"></canvas>
+          <div class="glass-card" style="width: 320px; z-index: 2; border-color: rgba(6, 182, 212, 0.2); box-shadow: var(--glow-cyan);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent-cyan); font-weight: 600; margin-bottom: 0.5rem;">L2 Network Stats</div>
+            <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">Arbitrum One</h3>
+            <div class="stat-row">
+              <span class="stat-label">Avg. Gas Saved</span>
+              <span class="stat-value savings">~95% - 98%</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Confirmation Time</span>
+              <span class="stat-value" style="color: var(--accent-cyan);">Sub-second</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Active TVL</span>
+              <span class="stat-value">$14.2 Billion</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Rollup Playground (EXCLUSIVE DIFFERENTIATOR) -->
+      <section class="rollup-section" id="rollup-playground">
+        <h2 class="section-title">Interactive Rollup Visualizer</h2>
+        <p class="section-subtitle">
+          See Optimistic Rollups in action! Generate individual transactions, queue them in the sequencer, and roll them up onto the Ethereum L1 ledger to calculate gas savings.
+        </p>
+        <div class="rollup-container">
+          <!-- Visual stage -->
+          <div class="glass-card rollup-visualizer-card" id="visualizer-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; font-size: 1.1rem;">L2 Sequencing Stage</span>
+              <span id="tx-counter-badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-family: 'Fira Code', monospace;">Queue: 0 Tx</span>
+            </div>
+            
+            <div class="rollup-stage" id="animation-stage">
+              <!-- Visualized L2 Sequencer Box -->
+              <div class="sequencer-box" id="sequencer-box">
+                Arbitrum Sequencer
+              </div>
+              
+              <!-- Visualized L1 Settlement Box -->
+              <div class="l1-ledger" id="l1-ledger">
+                Ethereum L1 settlement
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+              <button class="btn btn-primary" id="btn-add-tx" style="flex-grow: 1;">Create User Tx</button>
+              <button class="btn btn-secondary" id="btn-process-rollup" style="flex-grow: 1;" disabled>Roll Up & Settle (L1)</button>
+            </div>
+          </div>
+          <!-- Explanatory statistics and console -->
+          <div class="rollup-info">
+            <div class="glass-card" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 0.5rem;">Rollup Ledger</h3>
+                
+                <div class="stat-row">
+                  <span class="stat-label">Ethereum L1 Base Cost (Gas)</span>
+                  <span class="stat-value" id="stat-l1-cost" style="color: var(--status-danger);">$0.00</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Arbitrum L2 Batch Cost (Gas)</span>
+                  <span class="stat-value" id="stat-l2-cost" style="color: var(--accent-cyan);">$0.00</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Total Gas Savings</span>
+                  <span class="stat-value savings" id="stat-savings">0%</span>
+                </div>
+                <div class="stat-row" style="margin-top: 1.5rem;">
+                  <span class="stat-label">Transactions Processed</span>
+                  <span class="stat-value" id="stat-tx-count" style="font-family: 'Fira Code', monospace;">0</span>
+                </div>
+              </div>
+              <!-- Console logs -->
+              <div style="margin-top: 1.5rem;">
+                <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 0.5rem;">Sequencer Output</h4>
+                <div id="rollup-log" style="background: rgba(5, 7, 14, 0.9); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #a5b4fc; height: 130px; overflow-y: auto;">
+                  <div style="color: var(--color-text-muted);">&gt; Sequencer idle. Create transactions to begin.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Educational Content Section -->
+      <section style="padding: 5rem 0; border-top: 1px solid var(--border-glass);" id="l2-explainer">
+        <h2 class="section-title">Scaling Under the Hood</h2>
+        <p class="section-subtitle">Understanding the technology that drives Arbitrum and Ethereum L2 scaling.</p>
+        
+        <div class="l2-features">
+          <div class="glass-card">
+            <span class="feature-icon">⛓️</span>
+            <h3 style="margin-bottom: 1rem;">Why Ethereum Needed L2</h3>
+            <p style="color: var(--color-text-muted); font-size: 0.95rem;">
+              Ethereum processes roughly 15 transactions per second (TPS). When demand rises, users bid up transaction fees (gas) to secure quick execution, occasionally pushing a simple swap past $50. Layer 2 networks process trades off-chain to ease this load.
+            </p>
+          </div>
+          <div class="glass-card">
+            <span class="feature-icon">📦</span>
+            <h3 style="margin-bottom: 1rem;">The Role of Arbitrum</h3>
+            <p style="color: var(--color-text-muted); font-size: 0.95rem;">
+              Arbitrum operates as an Optimistic Rollup. It assumes transactions are valid ("optimistic") and aggregates hundreds of L2 operations into a compressed package, submitting the state roots to Ethereum L1. This yields high throughput and low costs.
+            </p>
+          </div>
+          <div class="glass-card">
+            <span class="feature-icon">🛡️</span>
+            <h3 style="margin-bottom: 1rem;">L1-Grade Security</h3>
+            <p style="color: var(--color-text-muted); font-size: 0.95rem;">
+              Unlike private chains or sidechains, Arbitrum publishes its data on Ethereum. If a sequencer tries to post fraudulent data, validator nodes can challenge it during the "Fraud Proof Window." The dispute is settled on Ethereum L1, keeping L2 secure.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom: 1.5rem; display: inline-flex;">
+          <span class="logo-icon">Λ</span> L2 Frontier
+        </a>
+        <p style="font-size: 0.9rem; margin-top: 1rem;">
+          An advanced Web3 educational platform designed to illustrate Ethereum scaling, blockchain immutability, and real-time market data.
+        </p>
+      </div>
+      <div class="footer-links">
+        <h5>Explore Pages</h5>
+        <ul>
+          <li><a href="index.html">Home / Landing</a></li>
+          <li><a href="concepts.html">Web3 Concepts</a></li>
+          <li><a href="prices.html">Live Crypto Prices</a></li>
+          <li><a href="simulator.html">Block Simulator</a></li>
+        </ul>
+      </div>
+      <div class="footer-author">
+        <h5>Development Credits</h5>
+        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Developer: <strong>Shreya</strong></p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Batch: <strong>Web3 Developer Pioneer</strong></p>
+        <div class="footer-socials">
+          <a href="https://github.com/shreya-web3" target="_blank" id="github-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan);">
+            <span>🐙</span> GitHub Repository
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Web3 Scaling Hub. Designed with visual excellence.</p>
+      <p>Built for Web3 Technical Core Curriculum</p>
+    </div>
+  </footer>
+  <!-- Node Particle & Rollup Simulation JavaScript -->
+  <script>
+    // --- Mobile Nav Menu ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    menuToggle.addEventListener('click', () => {
+      navMenu.style.display = navMenu.style.display === 'block' ? 'none' : 'block';
+    });
+    // --- Hero Node Network Particle Animation ---
+    const canvas = document.getElementById('node-canvas');
+    const ctx = canvas.getContext('2d');
+    // Resize canvas
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.offsetWidth || 500;
+      canvas.height = canvas.parentElement.offsetHeight || 500;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    // Node configuration
+    const nodes = [];
+    const nodeCount = 35;
+    const maxDistance = 90;
+    class Node {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.vy = (Math.random() - 0.5) * 0.8;
+        this.radius = Math.random() * 3 + 1.5;
+        this.color = Math.random() > 0.5 ? '#06b6d4' : '#8b5cf6';
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        // Bounce borders
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+    // Initialize nodes
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push(new Node());
+    }
+    // Animation Loop
+    function animateNodes() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw grid backing
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      // Update and draw connections
+      for (let i = 0; i < nodes.length; i++) {
+        nodes[i].update();
+        nodes[i].draw();
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxDistance) {
+            const alpha = 1 - (dist / maxDistance);
+            ctx.strokeStyle = `rgba(6, 182, 212, ${alpha * 0.18})`;
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateNodes);
+    }
+    animateNodes();
+    // --- L2 Rollup Simulator Logic ---
+    const btnAddTx = document.getElementById('btn-add-tx');
+    const btnProcessRollup = document.getElementById('btn-process-rollup');
+    const animationStage = document.getElementById('animation-stage');
+    const txCounterBadge = document.getElementById('tx-counter-badge');
+    const logOutput = document.getElementById('rollup-log');
+    
+    // Stats elements
+    const statL1Cost = document.getElementById('stat-l1-cost');
+    const statL2Cost = document.getElementById('stat-l2-cost');
+    const statSavings = document.getElementById('stat-savings');
+    const statTxCount = document.getElementById('stat-tx-count');
+    let txQueue = [];
+    let totalTxProcessed = 0;
+    let l1AccruedCost = 0.00;
+    let l2AccruedCost = 0.00;
+    const baseL1TxCost = 14.50; // simulated Gas price USD per tx
+    const baseL2TxCost = 0.25;  // simulated L2 execution fee USD
+    function addLogMessage(msg, type = 'info') {
+      const entry = document.createElement('div');
+      let prefix = '&gt; ';
+      if (type === 'success') {
+        entry.style.color = '#34d399';
+        prefix = '✓ ';
+      } else if (type === 'warn') {
+        entry.style.color = '#fbbf24';
+        prefix = '⚠ ';
+      } else if (type === 'info') {
+        entry.style.color = '#c084fc';
+      }
+      entry.innerHTML = `${prefix}${msg}`;
+      logOutput.appendChild(entry);
+      logOutput.scrollTop = logOutput.scrollHeight;
+    }
+    btnAddTx.addEventListener('click', () => {
+      if (txQueue.length >= 10) {
+        addLogMessage("Sequencer queue full! Process current batch before adding more.", "warn");
+        return;
+      }
+      const txId = Math.floor(1000 + Math.random() * 9000);
+      const txVal = (Math.random() * 2.5).toFixed(3);
+      
+      const newTx = {
+        id: txId,
+        value: txVal,
+        gasL1: baseL1TxCost + (Math.random() * 4),
+        gasL2: baseL2TxCost + (Math.random() * 0.1)
+      };
+      txQueue.push(newTx);
+      
+      // Render visual packet
+      const packetEl = document.createElement('div');
+      packetEl.className = 'tx-packet';
+      packetEl.id = `tx-${txId}`;
+      packetEl.innerText = `tx`;
+      
+      // Spawn packet at random top edge position
+      const stageWidth = animationStage.clientWidth;
+      packetEl.style.top = '10px';
+      packetEl.style.left = `${20 + Math.random() * (stageWidth - 60)}px`;
+      animationStage.appendChild(packetEl);
+      // Animate flying into the Sequencer Box
+      setTimeout(() => {
+        packetEl.style.opacity = '1';
+        packetEl.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        // Target Sequencer coordinates (Middle horizontal center)
+        const seqBox = document.getElementById('sequencer-box');
+        const targetX = seqBox.offsetLeft + (seqBox.clientWidth / 2) - 12;
+        const targetY = seqBox.offsetTop + (seqBox.clientHeight / 2) - 12;
+        
+        packetEl.style.left = `${targetX}px`;
+        packetEl.style.top = `${targetY}px`;
+      }, 50);
+      addLogMessage(`Tx #${txId} created: Transfer ${txVal} ETH. Queued in L2 Sequencer.`, 'info');
+      
+      txCounterBadge.innerText = `Queue: ${txQueue.length} Tx`;
+      btnProcessRollup.disabled = false;
+    });
+    btnProcessRollup.addEventListener('click', () => {
+      if (txQueue.length === 0) return;
+      btnAddTx.disabled = true;
+      btnProcessRollup.disabled = true;
+      
+      const currentBatch = [...txQueue];
+      txQueue = [];
+      txCounterBadge.innerText = `Queue: 0 Tx`;
+      
+      addLogMessage(`Batching ${currentBatch.length} transactions off-chain...`, 'info');
+      // Calculate batch values
+      let batchL1Cost = 0;
+      let batchL2Cost = 0;
+      currentBatch.forEach(tx => {
+        batchL1Cost += tx.gasL1;
+        batchL2Cost += tx.gasL2;
+      });
+      // Arbitrum Rollup compression factor: L1 data cost is shared among all transactions
+      // Base contract call to post state is fixed, execution on L2 is tiny
+      const fixedL1BatchPostCost = 12.00; 
+      const totalL2CostWithRollup = fixedL1BatchPostCost + batchL2Cost;
+      // Animate packet merging into Sequencer, spinning, and descending as a single compressed batch
+      const packets = document.querySelectorAll('.tx-packet');
+      
+      // Animate sequencer pulsing
+      const seqBox = document.getElementById('sequencer-box');
+      seqBox.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.8)';
+      seqBox.style.transform = 'translateX(-50%) scale(1.05)';
+      setTimeout(() => {
+        // Fade out individual transaction dots
+        packets.forEach(p => {
+          p.style.opacity = '0';
+          p.style.transform = 'scale(0)';
+        });
+        // Spawn batch bubble
+        const batchEl = document.createElement('div');
+        batchEl.className = 'rolled-batch';
+        batchEl.innerText = `BATCH`;
+        
+        // Start position at Sequencer center
+        batchEl.style.top = `${seqBox.offsetTop + 10}px`;
+        batchEl.style.left = `${seqBox.offsetLeft + (seqBox.clientWidth / 2) - 25}px`;
+        animationStage.appendChild(batchEl);
+        setTimeout(() => {
+          batchEl.style.opacity = '1';
+          batchEl.style.transition = 'all 1.2s cubic-bezier(0.55, 0.055, 0.675, 0.19)';
+          
+          const l1Ledger = document.getElementById('l1-ledger');
+          batchEl.style.top = `${l1Ledger.offsetTop - 40}px`;
+        }, 100);
+        setTimeout(() => {
+          // Batch landing on L1
+          const l1Ledger = document.getElementById('l1-ledger');
+          l1Ledger.style.boxShadow = '0 0 30px rgba(6, 182, 212, 0.8)';
+          l1Ledger.style.transform = 'translateX(-50%) scale(1.03)';
+          
+          // Clear animations
+          setTimeout(() => {
+            l1Ledger.style.boxShadow = '';
+            l1Ledger.style.transform = '';
+            seqBox.style.boxShadow = '';
+            seqBox.style.transform = '';
+            
+            // Remove batch element and text packets from DOM
+            batchEl.remove();
+            packets.forEach(p => p.remove());
+            // Update stats
+            totalTxProcessed += currentBatch.length;
+            l1AccruedCost += batchL1Cost;
+            l2AccruedCost += totalL2CostWithRollup;
+            const savingsPct = (((l1AccruedCost - l2AccruedCost) / l1AccruedCost) * 100).toFixed(1);
+            statL1Cost.innerText = `$${l1AccruedCost.toFixed(2)}`;
+            statL2Cost.innerText = `$${l2AccruedCost.toFixed(2)}`;
+            statSavings.innerText = `${savingsPct}%`;
+            statTxCount.innerText = totalTxProcessed;
+            addLogMessage(`Successfully rolled up ${currentBatch.length} transactions onto Ethereum L1!`, 'success');
+            addLogMessage(`Batch posted with State Root Hash: 0x${Math.random().toString(16).substring(2, 10)}...`, 'success');
+            addLogMessage(`Net gas savings for this batch: $${(batchL1Cost - totalL2CostWithRollup).toFixed(2)} USD!`, 'success');
+            // Re-enable actions
+            btnAddTx.disabled = false;
+          }, 300);
+        }, 1300);
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

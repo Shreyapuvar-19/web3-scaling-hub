@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Optimization -->
+  <title>Core Web3 Concepts | Interactive Knowledge Vault</title>
+  <meta name="description" content="Master foundational Web3 concepts: Web2 vs Web3, Ethereum vs Bitcoin, Public vs Private Keys, and Blockchain vs Databases. Test your knowledge in our interactive quiz.">
+  <meta name="keywords" content="Web2, Web3, Ethereum, Bitcoin, Cryptography, Keys, Database, Blockchain, Quiz">
+  <meta name="author" content="Shreya">
+  
+  <!-- Styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo" id="site-logo">
+        <span class="logo-icon">Λ</span> L2 Frontier
+      </a>
+      <button class="mobile-nav-toggle" id="menu-toggle" aria-label="Toggle Navigation">☰</button>
+      <nav id="nav-menu">
+        <ul>
+          <li><a href="index.html" id="nav-home">Home</a></li>
+          <li><a href="concepts.html" class="active" id="nav-concepts">Concepts</a></li>
+          <li><a href="prices.html" id="nav-prices">Live Prices</a></li>
+          <li><a href="simulator.html" id="nav-simulator">Block Simulator</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      
+      <!-- Page Header -->
+      <section style="text-align: center; margin-bottom: 4rem;">
+        <h1 class="section-title">Web3 Concepts Vault</h1>
+        <p class="section-subtitle">
+          Click any card to flip it and reveal the technical implementations and code standards under the hood. Hover to activate 3D perspective depth.
+        </p>
+      </section>
+      <!-- 3D Flipping Cards Grid -->
+      <section class="concepts-grid">
+        
+        <!-- Card 1: Web2 vs Web3 -->
+        <div class="concept-card-wrapper" id="card-web2-web3">
+          <div class="concept-card-inner">
+            <!-- Front of Card -->
+            <div class="concept-card-front">
+              <div class="concept-header">
+                <span class="concept-title">Web2 vs Web3</span>
+                <span class="concept-badge">Trust & Control</span>
+              </div>
+              <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                A transition from platform monopoly to user-owned decentralized protocols.
+              </p>
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Web2 (Centralized)</th>
+                    <th>Web3 (Decentralized)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="comp-key">Identity</td>
+                    <td class="comp-val">Email, OAuth (Google/FB)</td>
+                    <td class="comp-val">Cryptographic Wallet Address</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Storage</td>
+                    <td class="comp-val">AWS, Google Cloud, SQL</td>
+                    <td class="comp-val">IPFS, Arweave, Ethereum State</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Control</td>
+                    <td class="comp-val">Corporate Terms of Service</td>
+                    <td class="comp-val">Smart Contracts & DAOs</td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="flip-hint">Click Card to View RPC Payload ➔</span>
+            </div>
+            <!-- Back of Card -->
+            <div class="concept-card-inner concept-card-back">
+              <div>
+                <h3 style="margin-bottom: 0.5rem; color: var(--accent-cyan);">JSON-RPC Connection</h3>
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                  Web3 clients query the network state via JSON-RPC payloads sent to blockchain nodes.
+                </p>
+                <pre><code>// Get ETH balance of account
+curl https://mainnet.infura.io/v3/PROJECT_ID \
+-X POST \
+-H "Content-Type: application/json" \
+--data '{
+  "jsonrpc": "2.0",
+  "method": "eth_getBalance",
+  "params": ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e", "latest"],
+  "id": 1
+}'</code></pre>
+              </div>
+              <span class="flip-hint">Click to Return ➔</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 2: Ethereum vs Bitcoin -->
+        <div class="concept-card-wrapper" id="card-eth-btc">
+          <div class="concept-card-inner">
+            <!-- Front of Card -->
+            <div class="concept-card-front">
+              <div class="concept-header">
+                <span class="concept-title">Ethereum vs Bitcoin</span>
+                <span class="concept-badge">Programmability</span>
+              </div>
+              <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Comparing digital currency vs. global Turing-complete computing ledger.
+              </p>
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Bitcoin (BTC)</th>
+                    <th>Ethereum (ETH)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="comp-key">Primary Use</td>
+                    <td class="comp-val">Store of Value (Digital Gold)</td>
+                    <td class="comp-val">Decentralized Apps & Finance</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Logic</td>
+                    <td class="comp-val">Script (Limited stack-based)</td>
+                    <td class="comp-val">EVM (Turing-complete contracts)</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Block Time</td>
+                    <td class="comp-val">~10 Minutes</td>
+                    <td class="comp-val">~12 Seconds (L1) / Sub-second (L2)</td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="flip-hint">Click Card to View Smart Contract ➔</span>
+            </div>
+            <!-- Back of Card -->
+            <div class="concept-card-inner concept-card-back">
+              <div>
+                <h3 style="margin-bottom: 0.5rem; color: var(--accent-purple);">Solidity Smart Contract</h3>
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                  Ethereum supports complex state transitions via code run in the EVM.
+                </p>
+                <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+contract TokenStore {
+    mapping(address => uint256) public balances;
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+    }
+}</code></pre>
+              </div>
+              <span class="flip-hint">Click to Return ➔</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 3: Public vs Private Keys -->
+        <div class="concept-card-wrapper" id="card-keys">
+          <div class="concept-card-inner">
+            <!-- Front of Card -->
+            <div class="concept-card-front">
+              <div class="concept-header">
+                <span class="concept-title">Public vs Private Keys</span>
+                <span class="concept-badge">Cryptography</span>
+              </div>
+              <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Asymmetric encryption secures wallet authentication and message signing.
+              </p>
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Aspect</th>
+                    <th>Public Key (Address)</th>
+                    <th>Private Key (Secret)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="comp-key">Analogy</td>
+                    <td class="comp-val">Your Email Address / Mailbox</td>
+                    <td class="comp-val">Your Mailbox Key / Password</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Visibility</td>
+                    <td class="comp-val">Shared publicly on-chain</td>
+                    <td class="comp-val">Strictly secret (Never share)</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Role</td>
+                    <td class="comp-val">Receiving tokens / tracking assets</td>
+                    <td class="comp-val">Authorizing & signing transfers</td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="flip-hint">Click Card to View Secp256k1 Curve ➔</span>
+            </div>
+            <!-- Back of Card -->
+            <div class="concept-card-inner concept-card-back">
+              <div>
+                <h3 style="margin-bottom: 0.5rem; color: var(--accent-cyan);">ECDSA Signing Math</h3>
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                  Web3 uses Elliptic Curve Digital Signature Algorithm (secp256k1) to authorize operations.
+                </p>
+                <pre><code>// Private Key (d): Random 256-bit integer
+// Public Key (Q): Q = d * G (point on curve)
+// Signature (r, s) generated from message (z):
+// k = random_nonce()
+// R = k * G (point on curve)
+// r = R.x coordinate (mod n)
+// s = k⁻¹ * (z + r * d) (mod n)</code></pre>
+              </div>
+              <span class="flip-hint">Click to Return ➔</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 4: Blockchain vs Database -->
+        <div class="concept-card-wrapper" id="card-blockchain-db">
+          <div class="concept-card-inner">
+            <!-- Front of Card -->
+            <div class="concept-card-front">
+              <div class="concept-header">
+                <span class="concept-title">Blockchain vs Database</span>
+                <span class="concept-badge">State & Consensus</span>
+              </div>
+              <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Comparing trustless distributed ledgers vs. optimized query engines.
+              </p>
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Traditional Database</th>
+                    <th>Distributed Blockchain</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="comp-key">Write Speed</td>
+                    <td class="comp-val">Extremely fast (sub-millisecond)</td>
+                    <td class="comp-val">Bound by block consensus times</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Immutability</td>
+                    <td class="comp-val">Mutable (Admins can rewrite history)</td>
+                    <td class="comp-val">Immutable (Append-only cryptography)</td>
+                  </tr>
+                  <tr>
+                    <td class="comp-key">Consensus</td>
+                    <td class="comp-val">Single authority control</td>
+                    <td class="comp-val">BFT/Proof-of-Stake consensus</td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="flip-hint">Click Card to View Merkle Proof ➔</span>
+            </div>
+            <!-- Back of Card -->
+            <div class="concept-card-inner concept-card-back">
+              <div>
+                <h3 style="margin-bottom: 0.5rem; color: var(--accent-purple);">Merkle Tree Validation</h3>
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                  Blockchains verify specific records without scanning the entire database by utilizing Merkle Roots.
+                </p>
+                <pre><code>      [Merkle Root] (Hash ABCD)
+               /\
+              /  \
+        [Hash AB] [Hash CD]
+          /\          /\
+         /  \        /  \
+     [HashA][HashB][HashC][HashD]
+       |      |      |      |
+      Tx A   Tx B   Tx C   Tx D</code></pre>
+              </div>
+              <span class="flip-hint">Click to Return ➔</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Web3 Interactive Quiz -->
+      <section class="quiz-section" id="quiz-block">
+        <h2 class="section-title">Web3 Knowledge Assessment</h2>
+        <p class="section-subtitle">Test your grasp of Web3. Correct answers earn reputation points. See your Web3 rating at the end.</p>
+        
+        <div class="quiz-container">
+          <div class="glass-card quiz-card" id="quiz-card-box">
+            
+            <!-- Quiz Status -->
+            <div class="quiz-progress" id="quiz-status">Question 1 of 4</div>
+            <div class="quiz-bar">
+              <div class="quiz-bar-fill" id="quiz-bar-fill"></div>
+            </div>
+            <!-- Quiz Question -->
+            <div class="quiz-question" id="quiz-question-text">
+              Where does application data reside in a pure Web3 application?
+            </div>
+            <!-- Quiz Options -->
+            <div class="quiz-options" id="quiz-options-container">
+              <button class="quiz-option" data-idx="0">A centralized AWS relational database</button>
+              <button class="quiz-option" data-idx="1">A distributed peer-to-peer ledger like Ethereum</button>
+              <button class="quiz-option" data-idx="2">Local browser session cookies</button>
+              <button class="quiz-option" data-idx="3">Direct peer-to-peer Bluetooth connections</button>
+            </div>
+            <!-- Quiz feedback area -->
+            <div class="quiz-feedback" id="quiz-feedback-text"></div>
+            
+            <!-- Dynamic button -->
+            <button class="btn btn-primary" id="btn-quiz-next" style="margin-top: 1.5rem; display: none;">Next Question</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom: 1.5rem; display: inline-flex;">
+          <span class="logo-icon">Λ</span> L2 Frontier
+        </a>
+        <p style="font-size: 0.9rem; margin-top: 1rem;">
+          An advanced Web3 educational platform designed to illustrate Ethereum scaling, blockchain immutability, and real-time market data.
+        </p>
+      </div>
+      <div class="footer-links">
+        <h5>Explore Pages</h5>
+        <ul>
+          <li><a href="index.html">Home / Landing</a></li>
+          <li><a href="concepts.html">Web3 Concepts</a></li>
+          <li><a href="prices.html">Live Crypto Prices</a></li>
+          <li><a href="simulator.html">Block Simulator</a></li>
+        </ul>
+      </div>
+      <div class="footer-author">
+        <h5>Development Credits</h5>
+        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Developer: <strong>Shreya</strong></p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Batch: <strong>Web3 Developer Pioneer</strong></p>
+        <div class="footer-socials">
+          <a href="https://github.com/shreya-web3" target="_blank" id="github-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan);">
+            <span>🐙</span> GitHub Repository
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Web3 Scaling Hub. Designed with visual excellence.</p>
+      <p>Built for Web3 Technical Core Curriculum</p>
+    </div>
+  </footer>
+  <!-- Script for 3D Tilt, Flip, and Quiz -->
+  <script>
+    // --- Mobile Nav Menu ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    menuToggle.addEventListener('click', () => {
+      navMenu.style.display = navMenu.style.display === 'block' ? 'none' : 'block';
+    });
+    // --- Card Flip Interactions ---
+    const cards = document.querySelectorAll('.concept-card-wrapper');
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+      });
+      // --- 3D Tilting Effect ---
+      const inner = card.querySelector('.concept-card-inner');
+      
+      card.addEventListener('mousemove', (e) => {
+        if (card.classList.contains('flipped')) {
+          inner.style.transform = 'rotateY(180deg)'; // disable tilt when flipped
+          return;
+        }
+        
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left; // x position inside element
+        const y = e.clientY - rect.top;  // y position inside element
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // Tilt calculations (-8deg to 8deg max)
+        const tiltX = ((centerY - y) / centerY) * 8;
+        const tiltY = ((x - centerX) / centerX) * 8;
+        
+        inner.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        if (card.classList.contains('flipped')) {
+          inner.style.transform = 'rotateY(180deg)';
+        } else {
+          inner.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        }
+      });
+    });
+    // --- Quiz Data & Logic ---
+    const quizQuestions = [
+      {
+        question: "Where does application state/data reside in a pure Web3 application?",
+        options: [
+          "A centralized AWS relational database managed by the company",
+          "A distributed peer-to-peer ledger like Ethereum",
+          "Local browser session cookies and local storage exclusively",
+          "Direct peer-to-peer Bluetooth connections between clients"
+        ],
+        correct: 1,
+        explanation: "In Web3, instead of centralized servers, state and data are stored on a public distributed ledger (blockchain) maintained by a peer-to-peer network."
+      },
+      {
+        question: "What feature does Ethereum have that Bitcoin lacks at its protocol layer?",
+        options: [
+          "Peer-to-peer transfer logic",
+          "Decentralized proof-of-work history",
+          "A Turing-complete Virtual Machine (EVM) for smart contracts",
+          "Asymmetric public-private key cryptography"
+        ],
+        correct: 2,
+        explanation: "Ethereum is a programmable blockchain. It runs smart contracts in the Ethereum Virtual Machine (EVM), whereas Bitcoin is designed strictly as digital currency with limited scripting capability."
+      },
+      {
+        question: "If you lose your Private Key, what happens to your blockchain assets?",
+        options: [
+          "You can request a password reset via the foundation support portal",
+          "They are locked forever; nobody can recover them",
+          "They are automatically refunded to your bank account",
+          "They remain active but can only be spent in L2 networks"
+        ],
+        correct: 1,
+        explanation: "Your private key is the only mathematical proof of ownership. If it is lost, there is no centralized authority or administrator to recover it, meaning the address remains locked forever."
+      },
+      {
+        question: "Which property makes a blockchain superior to a relational database for decentralized finance?",
+        options: [
+          "Write speed and query indexing efficiency",
+          "Zero operational and running cost",
+          "Byzantine fault-tolerant consensus and tamper-proof ledger immutability",
+          "Support for standard SQL queries and triggers"
+        ],
+        correct: 2,
+        explanation: "Relational databases are centralized and fast. Blockchains trade off speed to achieve decentralized consensus (BFT) and immutability, ensuring that no single entity can modify transaction histories."
+      }
+    ];
+    let currentQuestionIdx = 0;
+    let score = 0;
+    let answered = false;
+    const quizStatus = document.getElementById('quiz-status');
+    const quizBarFill = document.getElementById('quiz-bar-fill');
+    const quizQuestionText = document.getElementById('quiz-question-text');
+    const quizOptionsContainer = document.getElementById('quiz-options-container');
+    const quizFeedbackText = document.getElementById('quiz-feedback-text');
+    const btnQuizNext = document.getElementById('btn-quiz-next');
+    function renderQuestion() {
+      answered = false;
+      btnQuizNext.style.display = 'none';
+      quizFeedbackText.innerHTML = '';
+      
+      const q = quizQuestions[currentQuestionIdx];
+      quizStatus.innerText = `Question ${currentQuestionIdx + 1} of ${quizQuestions.length}`;
+      quizBarFill.style.width = `${((currentQuestionIdx) / quizQuestions.length) * 100}%`;
+      
+      quizQuestionText.innerText = q.question;
+      
+      // Clear options
+      quizOptionsContainer.innerHTML = '';
+      
+      // Render options
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.innerText = opt;
+        btn.dataset.idx = idx;
+        btn.addEventListener('click', handleOptionSelect);
+        quizOptionsContainer.appendChild(btn);
+      });
+    }
+    function handleOptionSelect(e) {
+      if (answered) return;
+      answered = true;
+      
+      const selectedBtn = e.target;
+      const selectedIdx = parseInt(selectedBtn.dataset.idx);
+      const q = quizQuestions[currentQuestionIdx];
+      
+      const options = quizOptionsContainer.querySelectorAll('.quiz-option');
+      options.forEach(opt => {
+        const idx = parseInt(opt.dataset.idx);
+        opt.disabled = true;
+        
+        if (idx === q.correct) {
+          opt.classList.add('correct');
+        }
+        if (idx === selectedIdx && selectedIdx !== q.correct) {
+          opt.classList.add('incorrect');
+        }
+      });
+      
+      if (selectedIdx === q.correct) {
+        score++;
+        quizFeedbackText.innerHTML = `<span style="color: var(--status-success);">Correct!</span> ${q.explanation}`;
+      } else {
+        quizFeedbackText.innerHTML = `<span style="color: var(--status-danger);">Incorrect.</span> ${q.explanation}`;
+      }
+      
+      btnQuizNext.style.display = 'inline-block';
+      if (currentQuestionIdx === quizQuestions.length - 1) {
+        btnQuizNext.innerText = "Finish Quiz & Show Ranking";
+      } else {
+        btnQuizNext.innerText = "Next Question";
+      }
+    }
+    btnQuizNext.addEventListener('click', () => {
+      if (currentQuestionIdx < quizQuestions.length - 1) {
+        currentQuestionIdx++;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    });
+    function showResults() {
+      quizStatus.innerText = `Quiz Complete`;
+      quizBarFill.style.width = '100%';
+      
+      let badge = '';
+      let badgeColor = '';
+      
+      if (score === 4) {
+        badge = 'Solidity Wizard 🧙‍♂️';
+        badgeColor = '#06b6d4';
+      } else if (score === 3) {
+        badge = 'DeFi Architect ⚙️';
+        badgeColor = '#8b5cf6';
+      } else if (score === 2) {
+        badge = 'Gwei Trader 📈';
+        badgeColor = '#fbbf24';
+      } else {
+        badge = 'Web3 Novice 👶';
+        badgeColor = '#ef4444';
+      }
+      
+      quizQuestionText.innerText = `You Scored ${score} / ${quizQuestions.length}!`;
+      quizOptionsContainer.innerHTML = `
+        <div style="text-align: center; padding: 2rem 0;">
+          <p style="font-size: 1.1rem; color: var(--color-text-muted); margin-bottom: 1rem;">Your Web3 Reputation Badge:</p>
+          <h2 style="font-size: 2.2rem; color: ${badgeColor}; text-shadow: 0 0 15px ${badgeColor}30; margin-bottom: 2rem;">${badge}</h2>
+          <button class="btn btn-primary" onclick="resetQuiz()">Retake Assessment</button>
+        </div>
+      `;
+      quizFeedbackText.innerHTML = '';
+      btnQuizNext.style.display = 'none';
+    }
+    window.resetQuiz = function() {
+      currentQuestionIdx = 0;
+      score = 0;
+      btnQuizNext.innerText = "Next Question";
+      renderQuestion();
+    }
+    // Initialize Quiz
+    renderQuestion();
+  </script>
+</body>
+</html>

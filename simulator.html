@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Optimization -->
+  <title>Cryptographic Block Simulator | Interactive Consensus Lab</title>
+  <meta name="description" content="Simulate mining and consensus on a live blockchain. Learn how data alterations break block chains, modify nonces, and experience proof-of-work mining difficulty.">
+  <meta name="keywords" content="Cryptography, Blockchain Simulator, SHA-256, Proof of Work, Nonce, Mine, Immutability, Consensus">
+  <meta name="author" content="Shreya">
+  
+  <!-- Styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo" id="site-logo">
+        <span class="logo-icon">Λ</span> L2 Frontier
+      </a>
+      <button class="mobile-nav-toggle" id="menu-toggle" aria-label="Toggle Navigation">☰</button>
+      <nav id="nav-menu">
+        <ul>
+          <li><a href="index.html" id="nav-home">Home</a></li>
+          <li><a href="concepts.html" id="nav-concepts">Concepts</a></li>
+          <li><a href="prices.html" id="nav-prices">Live Prices</a></li>
+          <li><a href="simulator.html" class="active" id="nav-simulator">Block Simulator</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      
+      <!-- Page Header -->
+      <section style="text-align: center; margin-bottom: 3rem;">
+        <h1 class="section-title">Consensus & Immutability Lab</h1>
+        <p class="section-subtitle">
+          Experience Proof-of-Work mining. Change data inside any block to see how it invalidates the block and cascades down the entire chain.
+        </p>
+      </section>
+      <!-- Simulator Settings Panel -->
+      <section class="sim-controls">
+        <div class="difficulty-picker">
+          <label for="difficulty-select" style="font-weight: 600; font-size: 0.95rem;">Mining Difficulty (Target Zeros):</label>
+          <select id="difficulty-select">
+            <option value="1">1 Zero (0...) - Instant</option>
+            <option value="2" selected>2 Zeros (00...) - Fast</option>
+            <option value="3">3 Zeros (000...) - Moderate</option>
+            <option value="4">4 Zeros (0000...) - Heavy load</option>
+          </select>
+        </div>
+        
+        <button class="btn btn-primary" id="btn-add-block" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+          <span>➕</span> Add Block to Chain
+        </button>
+      </section>
+      <!-- Blockchain Container -->
+      <section class="blockchain-row" id="blockchain-chain-container">
+        <!-- Blocks and link SVGs will be dynamically loaded here by JS -->
+      </section>
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom: 1.5rem; display: inline-flex;">
+          <span class="logo-icon">Λ</span> L2 Frontier
+        </a>
+        <p style="font-size: 0.9rem; margin-top: 1rem;">
+          An advanced Web3 educational platform designed to illustrate Ethereum scaling, blockchain immutability, and real-time market data.
+        </p>
+      </div>
+      <div class="footer-links">
+        <h5>Explore Pages</h5>
+        <ul>
+          <li><a href="index.html">Home / Landing</a></li>
+          <li><a href="concepts.html">Web3 Concepts</a></li>
+          <li><a href="prices.html">Live Crypto Prices</a></li>
+          <li><a href="simulator.html">Block Simulator</a></li>
+        </ul>
+      </div>
+      <div class="footer-author">
+        <h5>Development Credits</h5>
+        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Developer: <strong>Shreya</strong></p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Batch: <strong>Web3 Developer Pioneer</strong></p>
+        <div class="footer-socials">
+          <a href="https://github.com/shreya-web3" target="_blank" id="github-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan);">
+            <span>🐙</span> GitHub Repository
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Web3 Scaling Hub. Designed with visual excellence.</p>
+      <p>Built for Web3 Technical Core Curriculum</p>
+    </div>
+  </footer>
+  <!-- Script for Cryptographic Simulator -->
+  <script>
+    // --- Mobile Nav Menu ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    menuToggle.addEventListener('click', () => {
+      navMenu.style.display = navMenu.style.display === 'block' ? 'none' : 'block';
+    });
+    // --- Cryptographic Engine ---
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashHex;
+    }
+    // State Variables
+    let blockchain = [];
+    let miningInProgress = false;
+    let cancelCurrentMining = null; // cancellation callback
+    const chainContainer = document.getElementById('blockchain-chain-container');
+    const difficultySelect = document.getElementById('difficulty-select');
+    const btnAddBlock = document.getElementById('btn-add-block');
+    // Get current difficulty string based on selection (e.g. '00')
+    function getDifficultyTarget() {
+      const zeros = parseInt(difficultySelect.value);
+      return '0'.repeat(zeros);
+    }
+    // Default Seed Blocks
+    const genesisSeed = {
+      index: 1,
+      nonce: 432,
+      data: "Genesis transaction payload. Shreya transfers 50 ETH to Alice.",
+      prevHash: "0000000000000000000000000000000000000000000000000000000000000000",
+      hash: ""
+    };
+    const block2Seed = {
+      index: 2,
+      nonce: 87,
+      data: "Arbitrum state batch #42. Gas price: 0.1 Gwei.",
+      prevHash: "", // will be calculated from Block 1
+      hash: ""
+    };
+    async function initSimulator() {
+      blockchain = [JSON.parse(JSON.stringify(genesisSeed)), JSON.parse(JSON.stringify(block2Seed))];
+      await validateChain();
+      renderChain();
+    }
+    // Recalculates all hashes in sequence and sets validity states
+    async function validateChain() {
+      const target = getDifficultyTarget();
+      
+      for (let i = 0; i < blockchain.length; i++) {
+        const block = blockchain[i];
+        
+        // Link to previous block's hash
+        if (i > 0) {
+          block.prevHash = blockchain[i - 1].hash;
+        }
+        
+        // Compute current block's hash
+        // Formula: index + nonce + data + prevHash
+        const hashInput = `${block.index}${block.nonce}${block.data}${block.prevHash}`;
+        block.hash = await sha256(hashInput);
+        
+        // Set validity flag
+        block.isValid = block.hash.startsWith(target);
+      }
+    }
+    // Render elements and connection SVGs dynamically
+    function renderChain() {
+      chainContainer.innerHTML = '';
+      blockchain.forEach((block, idx) => {
+        // Render block connector line (except for the first block)
+        if (idx > 0) {
+          const connector = document.createElement('div');
+          connector.className = `block-connector ${block.prevHash.startsWith(getDifficultyTarget()) && blockchain[idx-1].isValid ? 'valid' : 'invalid'}`;
+          connector.innerHTML = `
+            <svg>
+              <line x1="20" y1="0" x2="20" y2="40" stroke-width="4" />
+            </svg>
+          `;
+          chainContainer.appendChild(connector);
+        }
+        const card = document.createElement('div');
+        card.className = `glass-card block-card ${block.isValid ? 'valid' : 'invalid'}`;
+        card.id = `block-card-${block.index}`;
+        card.innerHTML = `
+          <!-- Mining overlay -->
+          <div class="mining-overlay">
+            <div class="mining-ring"></div>
+            <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;">Mining Block...</div>
+            <div style="font-size: 0.85rem; color: var(--accent-cyan); margin-bottom: 0.75rem;" id="mining-nonce-val-${block.index}">Nonce: 0</div>
+            <div style="font-size: 0.8rem; color: var(--color-text-muted);" id="mining-rate-val-${block.index}">Calculating speed...</div>
+            <button class="btn btn-secondary" onclick="stopMining()" style="margin-top: 1.5rem; padding: 0.4rem 1rem; font-size: 0.8rem;">Cancel Mining</button>
+          </div>
+          <div class="block-card-header">
+            <span class="block-number">BLOCK #${block.index}</span>
+            <span class="block-status-badge">${block.isValid ? 'Valid Block' : 'Invalid Block'}</span>
+            ${block.index > 2 ? `<button onclick="removeBlock(${block.index})" style="background:none; border:none; color: var(--status-danger); cursor:pointer; font-size:0.9rem; font-weight:700;">Delete</button>` : ''}
+          </div>
+          <div class="form-group">
+            <label>Nonce (Integer)</label>
+            <input type="number" value="${block.nonce}" oninput="updateBlockField(${block.index}, 'nonce', this.value)" id="block-nonce-${block.index}">
+          </div>
+          <div class="form-group">
+            <label>Transaction Data</label>
+            <textarea style="width:100%; min-height:70px; background:rgba(5,7,14,0.6); border:1px solid var(--border-glass); border-radius:8px; padding:0.75rem; color:var(--color-text-primary); font-family:inherit; outline:none; resize:vertical;" 
+                      oninput="updateBlockField(${block.index}, 'data', this.value)">${block.data}</textarea>
+          </div>
+          <div class="hash-label">
+            Previous Hash: <span id="block-prev-hash-text-${block.index}">${block.prevHash}</span>
+          </div>
+          <div class="hash-label" style="margin-top: 0.75rem;">
+            Calculated Hash: <span id="block-hash-text-${block.index}">${block.hash}</span>
+          </div>
+          <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn btn-primary" onclick="mineBlock(${block.index})" style="width: 100%;">Mine Block</button>
+          </div>
+          
+          <div class="mining-stats-row" id="mining-stats-${block.index}" style="display: none;">
+            <span>Hashes Checked: <span id="stat-checked-${block.index}">0</span></span>
+            <span>Speed: <span id="stat-speed-${block.index}">0 H/s</span></span>
+          </div>
+        `;
+        chainContainer.appendChild(card);
+      });
+    }
+    // Triggered when editing data inside fields
+    window.updateBlockField = async function(idx, field, value) {
+      if (miningInProgress) return;
+      
+      const block = blockchain.find(b => b.index === idx);
+      if (!block) return;
+      if (field === 'nonce') {
+        block.nonce = parseInt(value) || 0;
+      } else {
+        block.data = value;
+      }
+      await validateChain();
+      
+      // Update UI selectively to prevent redrawing the inputs and disrupting user cursor focus
+      blockchain.forEach(b => {
+        const cardEl = document.getElementById(`block-card-${b.index}`);
+        if (cardEl) {
+          cardEl.className = `glass-card block-card ${b.isValid ? 'valid' : 'invalid'}`;
+          
+          const badge = cardEl.querySelector('.block-status-badge');
+          badge.innerText = b.isValid ? 'Valid Block' : 'Invalid Block';
+          
+          document.getElementById(`block-prev-hash-text-${b.index}`).innerText = b.prevHash;
+          document.getElementById(`block-hash-text-${b.index}`).innerText = b.hash;
+        }
+      });
+      // Redraw connection vectors
+      const connectors = document.querySelectorAll('.block-connector');
+      connectors.forEach((conn, cIdx) => {
+        const correspondingBlockIdx = cIdx + 1;
+        const b = blockchain[correspondingBlockIdx];
+        const prevB = blockchain[cIdx];
+        const isConnValid = b.prevHash.startsWith(getDifficultyTarget()) && prevB.isValid;
+        
+        conn.className = `block-connector ${isConnValid ? 'valid' : 'invalid'}`;
+      });
+    }
+    // Dynamic Block Adding
+    btnAddBlock.addEventListener('click', async () => {
+      if (miningInProgress) return;
+      const newIndex = blockchain.length + 1;
+      const prevBlock = blockchain[blockchain.length - 1];
+      const newBlock = {
+        index: newIndex,
+        nonce: 0,
+        data: `Transaction batch #${newIndex}. Shreya transfers 100 Gwei.`,
+        prevHash: prevBlock.hash,
+        hash: ""
+      };
+      blockchain.push(newBlock);
+      await validateChain();
+      renderChain();
+      
+      // Scroll smoothly to bottom
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+    // Remove custom block
+    window.removeBlock = async function(idx) {
+      if (miningInProgress) return;
+      blockchain = blockchain.filter(b => b.index !== idx);
+      
+      // Re-index remaining subsequent blocks
+      blockchain.forEach((b, index) => {
+        b.index = index + 1;
+      });
+      await validateChain();
+      renderChain();
+    }
+    // Async Proof-of-Work Miner Loop
+    window.mineBlock = async function(blockIdx) {
+      if (miningInProgress) return;
+      
+      const block = blockchain.find(b => b.index === blockIdx);
+      if (!block) return;
+      const card = document.getElementById(`block-card-${blockIdx}`);
+      card.classList.add('mining');
+      
+      miningInProgress = true;
+      let nonceCandidate = 0;
+      const targetPrefix = getDifficultyTarget();
+      
+      // Setup UI references
+      const nonceDisplay = document.getElementById(`mining-nonce-val-${blockIdx}`);
+      const rateDisplay = document.getElementById(`mining-rate-val-${blockIdx}`);
+      
+      let startTime = Date.now();
+      let lastCheckTime = startTime;
+      let totalCheckedCount = 0;
+      let batchCheckedCount = 0;
+      let keepMining = true;
+      // Cancellation callback
+      cancelCurrentMining = () => {
+        keepMining = false;
+      };
+      // Loop in async chunks to keep browser responsive
+      async function runBatch() {
+        if (!keepMining) {
+          cleanupMining(false);
+          return;
+        }
+        const batchSize = 1000;
+        for (let i = 0; i < batchSize; i++) {
+          const hashInput = `${block.index}${nonceCandidate}${block.data}${block.prevHash}`;
+          const currentHash = await sha256(hashInput);
+          if (currentHash.startsWith(targetPrefix)) {
+            // Found target hash!
+            block.nonce = nonceCandidate;
+            block.hash = currentHash;
+            block.isValid = true;
+            
+            // Write nonce value back to input box
+            const inputField = document.getElementById(`block-nonce-${blockIdx}`);
+            if (inputField) inputField.value = nonceCandidate;
+            cleanupMining(true);
+            return;
+          }
+          nonceCandidate++;
+          totalCheckedCount++;
+          batchCheckedCount++;
+        }
+        // Calculate performance
+        const now = Date.now();
+        const elapsedSec = (now - lastCheckTime) / 1000;
+        if (elapsedSec >= 0.25) {
+          const hashRate = Math.round(batchCheckedCount / elapsedSec);
+          nonceDisplay.innerText = `Nonce: ${nonceCandidate}`;
+          rateDisplay.innerText = `Hash Rate: ${hashRate.toLocaleString()} H/s`;
+          
+          lastCheckTime = now;
+          batchCheckedCount = 0;
+        }
+        // Yield execution and schedule next batch
+        setTimeout(runBatch, 0);
+      }
+      function cleanupMining(success) {
+        card.classList.remove('mining');
+        miningInProgress = false;
+        cancelCurrentMining = null;
+        if (success) {
+          validateChain().then(() => {
+            renderChain();
+          });
+        }
+      }
+      // Start asynchronous loop
+      runBatch();
+    }
+    window.stopMining = function() {
+      if (cancelCurrentMining) {
+        cancelCurrentMining();
+      }
+    }
+    // Refresh simulation on difficulty changes
+    difficultySelect.addEventListener('change', async () => {
+      await validateChain();
+      renderChain();
+    });
+    // Initialize Page
+    initSimulator();
+  </script>
+</body>
+</html>
